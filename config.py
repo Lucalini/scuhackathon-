@@ -23,7 +23,7 @@ PORT = int(os.getenv("PORT", "8000"))
 # Hailo-Ollama (on-device VLM)
 HAILO_OLLAMA_URL = os.getenv("HAILO_OLLAMA_URL", "http://localhost:11434")
 VLM_MODEL = os.getenv("VLM_MODEL", "qwen2-vl-2b-instruct")
-VLM_TIMEOUT_S = int(os.getenv("VLM_TIMEOUT_S", "120"))
+VLM_TIMEOUT_S = int(os.getenv("VLM_TIMEOUT_S", "60"))
 
 TRIAGE_PROMPT = (
     "You are a field medical triage assistant. Examine this wound image. "
@@ -47,6 +47,8 @@ DS18B20_BASE_DIR = "/sys/bus/w1/devices/"
 # Camera
 CAMERA_RESOLUTION = (640, 480)
 CAMERA_JPEG_QUALITY = 85
+CAMERA_STREAM_FPS = int(os.getenv("CAMERA_STREAM_FPS", "24"))
+MOCK_IMAGE_PATH = BASE_DIR / "static" / "mock" / "test_wound.jpeg"
 
 # Remote server (stretch goal — sync + doctor dashboard)
 REMOTE_SERVER_URL = os.getenv("REMOTE_SERVER_URL", "http://localhost:8080")

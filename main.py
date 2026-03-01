@@ -12,19 +12,34 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 import config
+from database import init_db
+from services.camera import init_camera, shutdown_camera, mjpeg_stream, capture_snapshot
+from services.inference import init_inference, shutdown_inference
+from services.sensors import (
+    init_sensors,
+    shutdown_sensors,
+    read_temperature,
+    was_button_pressed,
+    simulate_button_press,
+)
 
 # Lifespan — startup / shutdown hooks
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     config.CAPTURES_DIR.mkdir(exist_ok=True)
-    # Future: initialise DB, start sensor listeners, etc.
+    await init_db()
+    init_camera()
+    init_sensors()
+    init_inference()
     yield
-    # Future: cleanup resources
+    await shutdown_inference()
+    shutdown_sensors()
+    shutdown_camera()
 
 
 # App factory
@@ -76,3 +91,71 @@ async def page_log(request: Request):
 @app.get("/log/{entry_id:int}")
 async def page_detail(request: Request, entry_id: int):
     return templates.TemplateResponse("detail.html", {"request": request, "entry_id": entry_id})
+
+
+@app.get("/api/camera/stream")
+async def camera_stream():
+    return StreamingResponse(
+        mjpeg_stream(),
+        media_type="multipart/x-mixed-replace; boundary=FRAME",
+    )
+
+
+# API endpoint placeholders
+
+
+@app.post("/api/capture")
+async def capture():
+    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+
+
+@app.post("/api/entries/{entry_id}/chat")
+async def entry_chat(entry_id: int):
+    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+
+
+@app.get("/api/temperature")
+async def temperature():
+    from datetime import datetime, timezone
+
+    temp = read_temperature()
+    return {
+        "temperature_c": temp,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+@app.post("/api/debug/button-press")
+async def debug_button_press():
+    simulate_button_press()
+    return {"detail": "Button press simulated"}
+
+
+@app.get("/api/debug/button-status")
+async def debug_button_status():
+    return {"was_pressed": was_button_pressed()}
+
+
+@app.get("/api/entries")
+async def list_entries():
+    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+
+
+@app.get("/api/entries/{entry_id}")
+async def get_entry(entry_id: int):
+    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+
+
+@app.post("/api/entries/{entry_id}/escalate")
+async def escalate_entry(entry_id: int):
+    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+
+
+@app.post("/api/sync")
+async def sync_entries():
+    return JSONResponse({"detail": "Not implemented — see STRETCH-A"}, status_code=501)
+
+
+@app.get("/api/guidance/{entry_id}")
+async def get_guidance(entry_id: int):
+    return JSONResponse({"detail": "Not implemented — see STRETCH-A"}, status_code=501)
