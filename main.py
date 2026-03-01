@@ -129,7 +129,10 @@ async def page_detail(request: Request, entry_id: int):
     entry = await database.get_entry(entry_id)
     if entry is None:
         return JSONResponse({"detail": "Entry not found"}, status_code=404)
-    return templates.TemplateResponse("detail.html", {"request": request, "entry": entry})
+    return templates.TemplateResponse(
+        "detail.html",
+        {"request": request, "entry": entry, "entry_id": entry_id},
+    )
 
 
 @app.get("/classic")

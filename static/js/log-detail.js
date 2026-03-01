@@ -97,6 +97,15 @@
       return;
     }
 
+    const serverRendered = contentEl.getAttribute("data-server-rendered") === "true";
+    if (serverRendered) {
+      const btnEscalate = document.getElementById("btn-escalate");
+      if (btnEscalate && !btnEscalate.disabled) {
+        btnEscalate.onclick = () => escalateEntry(entryId);
+      }
+      return;
+    }
+
     try {
       const res = await fetch("/api/entries/" + entryId);
       if (!res.ok) {
@@ -182,7 +191,7 @@
   }
 
   function init() {
-    if (document.getElementById("log-list")) {
+    if (document.getElementById("log-list") || document.getElementById("log-catalog")) {
       window.refreshLogList = function () { window.location.reload(); };
       var refreshBtn = document.getElementById("log-refresh");
       if (refreshBtn) refreshBtn.addEventListener("click", function () { window.location.reload(); });

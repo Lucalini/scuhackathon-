@@ -257,7 +257,7 @@
     updateClock();
     setInterval(updateClock, 1000);
 
-    if (document.getElementById("log-list") || document.getElementById("detail-content")) {
+    if (document.getElementById("log-list") || document.getElementById("log-catalog") || document.getElementById("detail-content")) {
       return;
     }
 

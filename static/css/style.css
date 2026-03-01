@@ -649,20 +649,61 @@ html, body {
 .confidence-bar-fill.severity-2 { background: #f59e0b; }
 .confidence-bar-fill.severity-3 { background: #ef4444; }
 
-/* patient log list */
+/* log tab — large 3 thumbnails per row, click opens expanded view */
 .log-page .back-link { margin-bottom: 8px; display: inline-block; }
-.log-list { flex: 1; overflow-y: auto; min-height: 0; }
-.log-list-item {
-  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
-  border-bottom: 1px solid var(--border); cursor: pointer;
-  transition: background 0.15s;
+.log-panel .panel-header { display: flex; align-items: center; justify-content: space-between; }
+.log-header-actions { display: flex; align-items: center; gap: 6px; }
+.log-sort-btn { font-size: 16px; padding: 4px 8px; min-width: 36px; }
+.log-catalog {
+  flex: 1; min-height: 0; overflow-y: auto;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: minmax(200px, auto); gap: 10px;
+  padding: 10px; align-content: start;
 }
-.log-list-item:hover, .log-list-item:active { background: var(--surface-2); }
-.log-list-item .log-time { flex-shrink: 0; font-size: 11px; color: var(--text-dim); }
-.log-list-item .log-patient { flex: 1; font-weight: 500; min-width: 0; }
-.log-list-item .log-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.log-list-item .log-confidence { font-size: 11px; color: var(--text-dim); }
-.log-list-empty { padding: 24px; text-align: center; color: var(--text-dim); font-size: 13px; }
+.log-catalog--empty { display: flex; align-items: center; justify-content: center; }
+.log-catalog-empty {
+  padding: 32px 24px; text-align: center; color: var(--text-dim); font-size: 14px;
+  max-width: 280px; line-height: 1.5;
+}
+.log-catalog-item {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  min-width: 0; min-height: 0;
+  border-radius: var(--radius); overflow: hidden; background: var(--surface-2);
+  border: 1px solid var(--border); cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.log-catalog-item:hover, .log-catalog-item:active {
+  border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 2px var(--accent);
+}
+.log-catalog-patient {
+  padding: 6px 8px; font-size: 12px; font-weight: 600; color: var(--text);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+/* square thumb via padding-bottom hack (reliable cross-browser) */
+.log-catalog-thumb {
+  position: relative; width: 100%; flex-shrink: 0;
+  height: 0; padding-bottom: 100%; background: #000; overflow: hidden;
+}
+.log-catalog-thumb img {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+.log-catalog-noimg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; color: var(--text-dim); background: var(--surface-2);
+}
+.log-catalog-badges {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+.log-catalog-confidence { font-size: 11px; color: var(--text-dim); font-weight: 500; }
+.log-catalog-escalated { font-size: 14px; }
+.log-catalog-reasoning {
+  padding: 6px 8px; font-size: 11px; color: var(--text-dim); line-height: 1.35;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  flex: 1; min-height: 0;
+}
 
 /* entry detail */
 .detail-page .back-link { margin-bottom: 8px; display: inline-block; }

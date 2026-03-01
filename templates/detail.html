@@ -4,46 +4,58 @@
 {% block content %}
 <div class="detail-page" style="position: relative; display: flex; flex-direction: column; height: calc(480px - 32px); overflow: hidden;">
   <a href="/log" class="btn btn-outline back-link">← Back to Log</a>
-  <div id="detail-content" class="detail-grid" style="flex: 1; min-height: 0;">
+  <div id="detail-content" class="detail-grid" style="flex: 1; min-height: 0;" data-server-rendered="true">
     <!-- detail image -->
     <div class="detail-image-panel panel">
       <div class="panel-header"><span class="panel-title">Capture</span></div>
+      {% if entry.image_filename %}
+      <img id="detail-image" src="/api/captures/{{ entry.image_filename }}" alt="Wound capture" />
+      <div id="detail-image-placeholder" class="camera-placeholder hidden" style="flex: 1; justify-content: center;">
+        <span class="camera-icon">🖼</span>
+        <span>No image</span>
+      </div>
+      {% else %}
       <img id="detail-image" src="" alt="Wound capture" class="hidden" />
       <div id="detail-image-placeholder" class="camera-placeholder" style="flex: 1; justify-content: center;">
         <span class="camera-icon">🖼</span>
         <span>No image</span>
       </div>
+      {% endif %}
     </div>
     <!-- detail meta -->
     <div class="detail-meta-panel panel" style="overflow-y: auto;">
       <div class="panel-header"><span class="panel-title">Entry #<span id="detail-id">{{ entry_id }}</span></span></div>
       <div style="padding: 8px;">
         <table>
-          <tr><th>Time</th><td id="detail-time">—</td></tr>
-          <tr><th>Patient</th><td id="detail-patient">—</td></tr>
-          <tr><th>Temp</th><td id="detail-temp">—</td></tr>
-          <tr><th>Severity</th><td id="detail-severity">—</td></tr>
-          <tr><th>Confidence</th><td id="detail-confidence">—</td></tr>
+          <tr><th>Time</th><td id="detail-time">{{ (entry.timestamp or entry.created_at) | relative_time }}</td></tr>
+          <tr><th>Patient</th><td id="detail-patient">{{ entry.patient_id or ('Patient #' ~ entry.id) }}</td></tr>
+          <tr><th>Temp</th><td id="detail-temp">{% if entry.temperature_c is not none %}{{ entry.temperature_c }} °C{% else %}—{% endif %}</td></tr>
+          <tr><th>Severity</th><td id="detail-severity">{{ entry.severity | severity_label }}</td></tr>
+          <tr><th>Confidence</th><td id="detail-confidence">{% if entry.confidence is not none %}{{ entry.confidence | round }}%{% else %}—{% endif %}</td></tr>
         </table>
         <div class="detail-reasoning">
           <strong>VLM reasoning</strong>
-          <p id="detail-reasoning" style="margin-top: 4px;">—</p>
+          <p id="detail-reasoning" style="margin-top: 4px;">{{ entry.vlm_reasoning or '—' }}</p>
         </div>
         <div class="detail-chat-section">
           <h4>Chat history</h4>
-          <div id="detail-chat">—</div>
+          <div id="detail-chat">{% if entry.chat_history %}{% for c in entry.chat_history %}<div class="chat-msg user">{{ c.q or c.question or '—' }}</div><div class="chat-msg assistant">{{ c.a or c.answer or '—' }}</div>{% endfor %}{% else %}—{% endif %}</div>
         </div>
         <div class="detail-guidance-section">
           <h4>Remote guidance</h4>
-          <p id="detail-guidance" style="font-size: 12px;">No remote guidance yet.</p>
+          <p id="detail-guidance" style="font-size: 12px;">{{ entry.remote_guidance or 'No remote guidance yet.' }}</p>
         </div>
         <div class="detail-actions">
+          {% if entry.escalated %}
+          <button type="button" id="btn-escalate" class="btn btn-danger" disabled>Escalated</button>
+          {% else %}
           <button type="button" id="btn-escalate" class="btn btn-danger">Escalate</button>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
-  <div id="detail-loading" class="loading-overlay" style="position: absolute; inset: 32px 0 0 0;">
+  <div id="detail-loading" class="loading-overlay hidden" style="position: absolute; inset: 32px 0 0 0;">
     <div class="spinner"></div>
     <span class="loading-text">Loading entry…</span>
   </div>

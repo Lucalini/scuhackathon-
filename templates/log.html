@@ -4,23 +4,32 @@
 {% block content %}
 <div class="log-page" style="display: flex; flex-direction: column; height: calc(480px - 32px); overflow: hidden;">
   <a href="/" class="btn btn-outline back-link">← Back to Triage</a>
-  <div class="panel" style="flex: 1; min-height: 0; display: flex; flex-direction: column;">
+  <div class="panel log-panel" style="flex: 1; min-height: 0; display: flex; flex-direction: column;">
     <div class="panel-header">
-      <span class="panel-title">Patient log</span>
-      <button type="button" class="btn btn-sm btn-outline" id="log-refresh" title="Refresh list" onclick="window.location.reload()">Refresh</button>
+      <span class="panel-title">Log</span>
+      <div class="log-header-actions">
+        <button type="button" class="btn btn-sm btn-outline log-sort-btn" id="log-sort-btn" title="Sort" aria-label="Sort">≡</button>
+        <button type="button" class="btn btn-sm btn-outline" id="log-refresh" title="Refresh" onclick="window.location.reload()">Refresh</button>
+      </div>
     </div>
-    <div id="log-list" class="log-list">
-      <div id="log-list-empty" class="log-list-empty {% if entries %}hidden{% endif %}">No entries yet. Capture from the Triage screen.</div>
+    <div id="log-catalog" class="log-catalog {% if not entries %}log-catalog--empty{% endif %}" data-server-rendered="true">
+      <div id="log-catalog-empty" class="log-catalog-empty {% if entries %}hidden{% endif %}">No entries yet. Capture from the Triage screen.</div>
       {% for entry in entries %}
-      <a href="/log/{{ entry.id }}" class="log-list-item">
-        <span class="log-time">{{ (entry.timestamp or entry.created_at) | relative_time }}</span>
-        <span class="log-patient">{{ entry.patient_id or ('Patient #' ~ entry.id) }}</span>
-        <span class="log-meta">
+      <a href="/log/{{ entry.id }}" class="log-catalog-item" title="Click to open expanded view">
+        <span class="log-catalog-patient">Patient #{{ entry.patient_id or entry.id }}</span>
+        <div class="log-catalog-thumb">
+          {% if entry.image_filename %}
+          <img src="/api/captures/{{ entry.image_filename }}" alt="" />
+          {% else %}
+          <span class="log-catalog-noimg">🖼</span>
+          {% endif %}
+        </div>
+        <div class="log-catalog-badges">
           <span class="severity-badge severity-badge--small severity-{{ entry.severity if (entry.severity is not none and 0 <= entry.severity <= 3) else 1 }}">{{ entry.severity | severity_label }}</span>
-          <span class="log-confidence">{{ (entry.confidence | round(0)) if entry.confidence is not none else '—' }}{% if entry.confidence is not none %}%{% endif %}</span>
-          {% if entry.escalated %} ⚠️{% endif %}
-          {% if entry.synced %} ☁️{% endif %}
-        </span>
+          <span class="log-catalog-confidence">{% if entry.confidence is not none %}{{ entry.confidence | round(0) }}%{% else %}—{% endif %}</span>
+          {% if entry.escalated %}<span class="log-catalog-escalated" title="Escalated">⚠</span>{% endif %}
+        </div>
+        <p class="log-catalog-reasoning">VLM reasoning {{ (entry.vlm_reasoning or '—')[:60] }}{% if (entry.vlm_reasoning or '')|length > 60 %}…{% endif %}</p>
       </a>
       {% endfor %}
     </div>
