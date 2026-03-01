@@ -17,6 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 import config
+import database
 from database import init_db
 from services.camera import init_camera, shutdown_camera, mjpeg_stream, capture_snapshot
 
@@ -115,12 +116,16 @@ async def temperature():
 
 @app.get("/api/entries")
 async def list_entries():
-    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+    entries = await database.list_entries()
+    return entries
 
 
 @app.get("/api/entries/{entry_id}")
 async def get_entry(entry_id: int):
-    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+    entry = await database.get_entry(entry_id)
+    if entry is None:
+        return JSONResponse({"detail": "Entry not found"}, status_code=404)
+    return entry
 
 
 @app.post("/api/entries/{entry_id}/escalate")
