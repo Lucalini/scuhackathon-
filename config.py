@@ -47,6 +47,8 @@ DS18B20_BASE_DIR = "/sys/bus/w1/devices/"
 # Camera
 CAMERA_RESOLUTION = (640, 480)
 CAMERA_JPEG_QUALITY = 85
+CAMERA_STREAM_FPS = int(os.getenv("CAMERA_STREAM_FPS", "24"))
+MOCK_IMAGE_PATH = BASE_DIR / "static" / "mock" / "test_wound.jpeg"
 
 # Remote server (stretch goal — sync + doctor dashboard)
 REMOTE_SERVER_URL = os.getenv("REMOTE_SERVER_URL", "http://localhost:8080")
