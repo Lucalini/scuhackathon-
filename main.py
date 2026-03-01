@@ -76,3 +76,49 @@ async def page_log(request: Request):
 @app.get("/log/{entry_id:int}")
 async def page_detail(request: Request, entry_id: int):
     return templates.TemplateResponse("detail.html", {"request": request, "entry_id": entry_id})
+
+
+# API endpoint placeholders
+@app.get("/api/camera/stream")
+async def camera_stream():
+    return JSONResponse({"detail": "Not implemented — see BE-3"}, status_code=501)
+
+
+@app.post("/api/capture")
+async def capture():
+    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+
+
+@app.post("/api/entries/{entry_id}/chat")
+async def entry_chat(entry_id: int):
+    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+
+
+@app.get("/api/temperature")
+async def temperature():
+    return JSONResponse({"detail": "Not implemented — see BE-4"}, status_code=501)
+
+
+@app.get("/api/entries")
+async def list_entries():
+    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+
+
+@app.get("/api/entries/{entry_id}")
+async def get_entry(entry_id: int):
+    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+
+
+@app.post("/api/entries/{entry_id}/escalate")
+async def escalate_entry(entry_id: int):
+    return JSONResponse({"detail": "Not implemented — see BE-6"}, status_code=501)
+
+
+@app.post("/api/sync")
+async def sync_entries():
+    return JSONResponse({"detail": "Not implemented — see STRETCH-A"}, status_code=501)
+
+
+@app.get("/api/guidance/{entry_id}")
+async def get_guidance(entry_id: int):
+    return JSONResponse({"detail": "Not implemented — see STRETCH-A"}, status_code=501)
