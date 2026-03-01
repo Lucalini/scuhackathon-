@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <title>{% block title %}FieldTriage AI{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <!-- FE-1: Top bar — logo, connection status dot, clock -->
+  <header class="top-bar">
+    <span class="logo">FieldTriage AI</span>
+    <nav>
+      <a href="/">Triage</a>
+      <a href="/log">Log</a>
+    </nav>
+    <span class="clock" id="clock"></span>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <script src="/static/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
