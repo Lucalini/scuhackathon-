@@ -19,6 +19,13 @@ from fastapi.templating import Jinja2Templates
 import config
 from database import init_db
 from services.camera import init_camera, shutdown_camera, mjpeg_stream, capture_snapshot
+from services.sensors import (
+    init_sensors,
+    shutdown_sensors,
+    read_temperature,
+    was_button_pressed,
+    simulate_button_press,
+)
 
 # Lifespan — startup / shutdown hooks
 @asynccontextmanager
@@ -26,7 +33,9 @@ async def lifespan(app: FastAPI):
     config.CAPTURES_DIR.mkdir(exist_ok=True)
     await init_db()
     init_camera()
+    init_sensors()
     yield
+    shutdown_sensors()
     shutdown_camera()
 
 
@@ -104,7 +113,24 @@ async def entry_chat(entry_id: int):
 
 @app.get("/api/temperature")
 async def temperature():
-    return JSONResponse({"detail": "Not implemented — see BE-4"}, status_code=501)
+    from datetime import datetime, timezone
+
+    temp = read_temperature()
+    return {
+        "temperature_c": temp,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+@app.post("/api/debug/button-press")
+async def debug_button_press():
+    simulate_button_press()
+    return {"detail": "Button press simulated"}
+
+
+@app.get("/api/debug/button-status")
+async def debug_button_status():
+    return {"was_pressed": was_button_pressed()}
 
 
 @app.get("/api/entries")
