@@ -19,7 +19,7 @@
   }
 
   function severityLabel(severity) {
-    const labels = ["Non-issue", "Minor", "Moderate", "Severe"];
+    const labels = ["NON-ISSUE", "MINOR", "MODERATE", "SEVERE"];
     return labels[Number(severity)] || "—";
   }
 
@@ -47,7 +47,7 @@
         row.href = "/log/" + entry.id;
         row.className = "log-list-item";
         const severity = Number(entry.severity);
-        const badgeClass = "severity-badge severity-" + (severity >= 0 && severity <= 3 ? severity : 1);
+        const badgeClass = "severity-badge severity-badge--small severity-" + (severity >= 0 && severity <= 3 ? severity : 1);
         row.innerHTML =
           '<span class="log-time">' +
           formatRelativeTime(entry.timestamp || entry.created_at) +

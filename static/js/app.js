@@ -17,12 +17,12 @@
     });
   }
 
-  // show toast message (error type = red)
+  // show toast; type: success|warning|error|info (issue #15)
   function showToast(message, type) {
     const container = document.getElementById("toast-container");
     if (!container) return;
     const toast = document.createElement("div");
-    toast.className = "toast" + (type === "error" ? " toast-error" : "");
+    toast.className = "toast toast-" + (type || "info");
     toast.textContent = message;
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
@@ -41,19 +41,29 @@
     if (overlay) overlay.classList.add("hidden");
   }
 
-  // severity 0-3 to label
+  // severity 0-3 to label (issue #15: NON-ISSUE, MINOR, MODERATE, SEVERE)
   function severityLabel(severity) {
-    const labels = ["Non-issue", "Minor", "Moderate", "Severe"];
+    const labels = ["NON-ISSUE", "MINOR", "MODERATE", "SEVERE"];
     return labels[Number(severity)] ?? "—";
   }
 
-  // post /api/capture, show result or toast on 501
+  // post /api/capture, show result or toast on 501 (issue #15: disable capture, pulse, Analyzing wound...)
   async function handleCapture() {
-    showLoading("Capturing & analyzing...");
+    const btnCapture = document.getElementById("btn-capture");
+    if (btnCapture) {
+      btnCapture.disabled = true;
+      btnCapture.classList.add("capture-pulsing");
+    }
+    showLoading("Analyzing wound...");
     try {
       const res = await fetch("/api/capture", { method: "POST" });
       const data = res.ok ? await res.json() : {};
       hideLoading();
+      if (btnCapture) {
+        btnCapture.disabled = false;
+        btnCapture.classList.remove("capture-pulsing");
+      }
+
 
       if (!res.ok) {
         if (res.status === 501 || (data.detail && String(data.detail).includes("Not implemented"))) {
@@ -79,25 +89,45 @@
       const badge = document.getElementById("result-severity-badge");
       const confidenceEl = document.getElementById("result-confidence");
       const reasoningEl = document.getElementById("result-reasoning");
+      const barFill = document.getElementById("confidence-bar-fill");
+      const bar = document.getElementById("confidence-bar");
 
       if (resultsEl) resultsEl.classList.remove("hidden");
       if (followupSection) followupSection.classList.remove("hidden");
 
       const severity = Number(entry.severity);
-      const badgeClass = "severity-badge severity-" + (severity >= 0 && severity <= 3 ? severity : 1);
+      const severityClass = severity >= 0 && severity <= 3 ? severity : 1;
+      const badgeClass = "severity-badge severity-badge--large severity-" + severityClass;
       if (badge) {
         badge.className = badgeClass;
         badge.textContent = severityLabel(severity);
       }
-      if (confidenceEl) confidenceEl.textContent = entry.confidence != null ? Math.round(entry.confidence) + "%" : "—";
+      const confidence = entry.confidence != null ? Math.round(entry.confidence) : 0;
+      if (confidenceEl) confidenceEl.textContent = confidence + "%";
+      if (barFill) {
+        barFill.style.width = confidence + "%";
+        barFill.className = "confidence-bar-fill severity-" + severityClass;
+      }
+      if (bar) {
+        bar.setAttribute("aria-valuenow", confidence);
+      }
       if (reasoningEl) reasoningEl.textContent = entry.vlm_reasoning || "—";
 
       const followupChat = document.getElementById("followup-chat");
       const followupMessages = document.getElementById("followup-messages");
       if (followupChat) followupChat.classList.add("hidden");
       if (followupMessages) followupMessages.innerHTML = "";
+
+      showToast("Triage complete", "success");
+      if (confidence < 60) {
+        showToast("Low confidence — consider escalating", "warning");
+      }
     } catch (e) {
       hideLoading();
+      if (btnCapture) {
+        btnCapture.disabled = false;
+        btnCapture.classList.remove("capture-pulsing");
+      }
       console.error("Capture error:", e);
       showToast("Capture failed.", "error");
     }
@@ -183,7 +213,7 @@
     try {
       const res = await fetch("/api/entries/" + entryId + "/escalate", { method: "POST" });
       if (res.ok) {
-        showToast("Escalated.");
+        showToast("Entry escalated", "success");
         const btn = document.getElementById("btn-escalate");
         if (btn) { btn.textContent = "Escalated"; btn.disabled = true; }
       } else {
