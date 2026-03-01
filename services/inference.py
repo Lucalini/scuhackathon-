@@ -1,14 +1,3 @@
-"""
-Inference service — Hailo-Ollama REST client for Qwen2-VL-2B-Instruct.
-
-Provides:
-    - assess_wound(image_b64)                → {severity, confidence, reasoning}
-    - chat_followup(image_b64, question, history) → str
-    - parse_vlm_response(text)               → {severity, confidence, reasoning}
-
-When MOCK_MODE is True, returns hardcoded/random results for laptop testing.
-"""
-
 from __future__ import annotations
 
 import logging
@@ -25,7 +14,6 @@ _client: httpx.AsyncClient | None = None
 
 
 def init_inference() -> None:
-    """Create the module-level httpx.AsyncClient. Call once at app startup."""
     global _client  # noqa: PLW0603
     if _client is not None:
         return
@@ -42,7 +30,6 @@ def init_inference() -> None:
 
 
 async def shutdown_inference() -> None:
-    """Close the httpx client gracefully. Call at app shutdown."""
     global _client  # noqa: PLW0603
     if _client is not None:
         await _client.aclose()
@@ -62,15 +49,11 @@ _RE_REASONING = re.compile(r"REASONING:\s*(.+)", re.IGNORECASE | re.DOTALL)
 
 
 def parse_vlm_response(text: str) -> dict:
-    """Parse structured VLM output into {severity, confidence, reasoning}.
-
+    """
     Expected format:
         SEVERITY: <0-3>
         CONFIDENCE: <0-100>
         REASONING: <text>
-
-    Raises:
-        InferenceError: if any of the three required fields cannot be parsed.
     """
     m_sev = _RE_SEVERITY.search(text)
     m_conf = _RE_CONFIDENCE.search(text)
@@ -132,14 +115,6 @@ class InferenceError(Exception):
 # Public API
 
 async def assess_wound(image_base64: str) -> dict:
-    """Send a wound image to the VLM and return a structured triage assessment.
-
-    Returns:
-        {"severity": int(0-3), "confidence": float(0-100), "reasoning": str}
-
-    Raises:
-        InferenceError: on timeout, connection, or HTTP errors.
-    """
     if config.MOCK_MODE:
         return _mock_assess_wound()
 
@@ -171,19 +146,6 @@ async def assess_wound(image_base64: str) -> dict:
 
 
 async def chat_followup(image_base64: str, question: str, history: list[dict]) -> str:
-    """Send a follow-up question about the wound image using conversation history.
-
-    Args:
-        image_base64: The wound image (same one used in initial assessment).
-        question: The new follow-up question.
-        history: Previous Q&A pairs as [{"q": "...", "a": "..."}, ...].
-
-    Returns:
-        The VLM's answer string.
-
-    Raises:
-        InferenceError: on timeout, connection, or HTTP errors.
-    """
     if config.MOCK_MODE:
         return _mock_chat_followup(question)
 

@@ -1,11 +1,4 @@
 """
-Camera service — picamera2 MJPEG stream + snapshot capture.
-
-Provides:
-    - get_camera()         → CameraService singleton
-    - mjpeg_stream()       → async generator yielding JPEG frames
-    - capture_snapshot()   → (base64_str, filename) saved to captures/
-
 When MOCK_MODE is True, returns a static test image for laptop development.
 picamera2 is only available on Raspberry Pi — mock mode is required for laptops.
 """
@@ -103,14 +96,12 @@ _camera_instance: _MockCamera | _PiCamera | None = None
 
 
 def get_camera() -> _MockCamera | _PiCamera:
-    """Return the singleton camera. Call ``init_camera()`` first."""
     if _camera_instance is None:
         raise RuntimeError("Camera not initialised — call init_camera() at startup")
     return _camera_instance
 
 
 def init_camera() -> None:
-    """Initialise and start the camera (singleton). Safe to call once at app startup."""
     global _camera_instance  # noqa: PLW0603
     if _camera_instance is not None:
         return
@@ -124,7 +115,6 @@ def init_camera() -> None:
 
 
 def shutdown_camera() -> None:
-    """Stop and release the camera. Call at app shutdown."""
     global _camera_instance  # noqa: PLW0603
     if _camera_instance is not None:
         _camera_instance.stop()
@@ -134,10 +124,6 @@ def shutdown_camera() -> None:
 # Public API
 
 async def mjpeg_stream() -> AsyncGenerator[bytes, None]:
-    """Yield JPEG frames wrapped in multipart boundaries for StreamingResponse.
-
-    Frame rate is governed by ``config.CAMERA_STREAM_FPS``.
-    """
     cam = get_camera()
     interval = 1.0 / config.CAMERA_STREAM_FPS
 
@@ -153,10 +139,6 @@ async def mjpeg_stream() -> AsyncGenerator[bytes, None]:
 
 
 async def capture_snapshot() -> tuple[str, str]:
-    """Capture a single frame, save to ``captures/``, return ``(base64_str, filename)``.
-
-    The base64 string is raw (no data-URI prefix) — ready for the Ollama ``images`` field.
-    """
     cam = get_camera()
     frame = await asyncio.to_thread(cam.get_frame)
 
