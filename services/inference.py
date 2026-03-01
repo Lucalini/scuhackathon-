@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import random
 import re
 
 import httpx
@@ -22,10 +21,9 @@ def init_inference() -> None:
         timeout=httpx.Timeout(config.VLM_TIMEOUT_S, connect=10.0),
     )
     logger.info(
-        "Inference client initialised (base_url=%s, timeout=%ss, mock=%s)",
+        "Inference client initialised (base_url=%s, timeout=%ss)",
         config.HAILO_OLLAMA_URL,
         config.VLM_TIMEOUT_S,
-        config.MOCK_MODE,
     )
 
 
@@ -80,34 +78,6 @@ def parse_vlm_response(text: str) -> dict:
     }
 
 
-# Mock implementations
-
-_MOCK_REASONINGS = [
-    "The wound appears superficial with no signs of infection.",
-    "Minor laceration with clean edges; no immediate concern.",
-    "Moderate abrasion with mild inflammation; monitor for infection.",
-    "Deep wound with active bleeding; immediate medical attention recommended.",
-]
-
-
-def _mock_assess_wound() -> dict:
-    severity = random.randint(0, 3)
-    confidence = round(random.uniform(40.0, 95.0), 1)
-    reasoning = _MOCK_REASONINGS[severity]
-    logger.info("Mock assess_wound → severity=%d, confidence=%.1f", severity, confidence)
-    return {"severity": severity, "confidence": confidence, "reasoning": reasoning}
-
-
-def _mock_chat_followup(question: str) -> str:
-    answer = (
-        "Based on the wound image, I recommend cleaning the area gently with "
-        "saline solution and applying a sterile bandage. Monitor for signs of "
-        "infection such as increased redness, swelling, or discharge."
-    )
-    logger.info("Mock chat_followup (question=%r) → static answer", question)
-    return answer
-
-
 class InferenceError(Exception):
     """Raised when the Hailo-Ollama inference call fails."""
 
@@ -115,9 +85,6 @@ class InferenceError(Exception):
 # Public API
 
 async def assess_wound(image_base64: str) -> dict:
-    if config.MOCK_MODE:
-        return _mock_assess_wound()
-
     client = _get_client()
     payload = {
         "model": config.VLM_MODEL,
@@ -146,9 +113,6 @@ async def assess_wound(image_base64: str) -> dict:
 
 
 async def chat_followup(image_base64: str, question: str, history: list[dict]) -> str:
-    if config.MOCK_MODE:
-        return _mock_chat_followup(question)
-
     client = _get_client()
 
     messages: list[dict] = [{"role": "system", "content": config.CHAT_SYSTEM_PROMPT}]
