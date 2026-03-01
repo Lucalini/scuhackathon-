@@ -47,7 +47,7 @@
     return labels[Number(severity)] ?? "—";
   }
 
-  // post /api/capture, show result or toast on 501 (issue #15: disable capture, pulse, Analyzing wound...)
+  // post /api/capture, show result or toast on 501 (issue #15: disable capture, pulse, Analyzing wound)
   async function handleCapture() {
     const btnCapture = document.getElementById("btn-capture");
     if (btnCapture) {
@@ -133,21 +133,22 @@
     }
   }
 
+  // get /api/temperature every 2s; --.- when unavailable (issue #16)
   async function pollTemperature() {
     const el = document.getElementById("temp-value");
     if (!el) return;
     try {
       const res = await fetch("/api/temperature");
       if (!res.ok) {
-        el.textContent = "—";
+        el.textContent = "--.-";
         return;
       }
       const data = await res.json();
       const temp = data.temperature_c ?? data.temp_c;
       if (temp != null) el.textContent = Number(temp).toFixed(1);
-      else el.textContent = "—";
+      else el.textContent = "--.-";
     } catch (_) {
-      el.textContent = "—";
+      el.textContent = "--.-";
     }
   }
 
