@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Patient {{ entry.patient_id or entry.id }} — FieldTriage AI{% endblock %}
+
+{% block content %}
+<div class="detail-page" id="detail-content">
+  <div class="detail-toolbar">
+    <a href="/log" class="btn btn-outline btn-sm">&larr; Back</a>
+    <h1 class="detail-title">Patient {{ entry.patient_id or entry.id }}</h1>
+    <span class="detail-time">{{ entry.created_at | relative_time }}</span>
+  </div>
+
+  <div class="detail-content">
+    <div class="detail-image-panel">
+      {% if entry.image_filename %}
+      <img class="detail-image" src="/api/captures/{{ entry.image_filename }}" alt="Capture" />
+      {% else %}
+      <div class="detail-image--empty">No image available</div>
+      {% endif %}
+    </div>
+
+    <div class="detail-info-panel">
+      <div class="detail-section">
+        <div class="detail-severity-row">
+          <span class="severity-badge severity-badge--large severity-{{ entry.severity }}">{{ entry.severity | severity_label }}</span>
+          <span class="detail-confidence">{{ entry.confidence | round | int }}% confidence</span>
+        </div>
+      </div>
+
+      {% if entry.temperature_c %}
+      <div class="detail-section">
+        <span class="detail-section-label">Temperature</span>
+        <span class="detail-temp-value">{{ entry.temperature_c }}°C</span>
+      </div>
+      {% endif %}
+
+      <div class="detail-section">
+        <span class="detail-section-label">VLM Reasoning</span>
+        <p class="detail-reasoning">{{ entry.vlm_reasoning or '—' }}</p>
+      </div>
+
+      {% if entry.escalated %}
+      <div class="detail-section detail-section--escalated">
+        <span class="detail-section-label">Escalated</span>
+        <span class="detail-escalation-reason">{{ entry.escalation_reason or 'Manual escalation' }}</span>
+      </div>
+      {% endif %}
+
+      {% if entry.chat_history %}
+      <div class="detail-section">
+        <span class="detail-section-label">Chat History</span>
+        <div class="detail-chat-history">
+          {% for msg in entry.chat_history %}
+          <div class="detail-chat-msg">
+            <span class="detail-chat-role">Q:</span>
+            <span class="detail-chat-content">{{ msg.q }}</span>
+          </div>
+          <div class="detail-chat-msg">
+            <span class="detail-chat-role">A:</span>
+            <span class="detail-chat-content">{{ msg.a }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if not entry.escalated %}
+      <div class="detail-actions">
+        <button class="btn btn-danger" id="btn-escalate-detail" data-entry-id="{{ entry.id }}">Escalate</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/app-detail.js"></script>
+{% endblock %}

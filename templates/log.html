@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Log — FieldTriage AI{% endblock %}
+
+{% block content %}
+<div class="log-page">
+  <div class="log-toolbar">
+    <h1 class="log-title">Log</h1>
+    <div class="sort-control">
+      <label class="sort-label" for="sort-select">Sort by</label>
+      <select class="sort-select" id="sort-select">
+        <option value="time" selected>Time</option>
+        <option value="severity">Severity</option>
+        <option value="confidence">Confidence</option>
+        <option value="escalated">Escalated</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="log-grid" id="log-grid">
+    {% for entry in entries %}
+    <a href="/log/{{ entry.id }}" class="patient-card"
+       data-time="{{ entry.created_at }}"
+       data-severity="{{ entry.severity }}"
+       data-confidence="{{ entry.confidence }}"
+       data-escalated="{{ '1' if entry.escalated else '0' }}">
+      <span class="patient-card-id">{{ entry.patient_id or ('Patient #' ~ entry.id) }}</span>
+      <div class="patient-card-thumb">
+        {% if entry.image_filename %}
+        <img src="/api/captures/{{ entry.image_filename }}" alt="Capture" loading="lazy" />
+        {% else %}
+        <span class="patient-card-thumb-empty">No image</span>
+        {% endif %}
+      </div>
+      <span class="severity-badge severity-badge--small severity-{{ entry.severity }}">{{ entry.severity | severity_label }}</span>
+      <div class="patient-card-footer">
+        <span class="patient-card-time">{{ entry.created_at | relative_time }}</span>
+        {% if entry.escalated %}
+        <span class="patient-card-escalated" title="Escalated">⚠ Escalated</span>
+        {% endif %}
+      </div>
+    </a>
+    {% else %}
+    <div class="log-grid-empty">
+      <p>No triage entries yet.</p>
+      <p>Go to <a href="/">Triage</a> to capture your first patient.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/app-log.js"></script>
+{% endblock %}
