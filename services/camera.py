@@ -65,14 +65,25 @@ class _PiCamera:
 
         self._picam2 = Picamera2()
         cam_config = self._picam2.create_video_configuration(
-            main={"size": config.CAMERA_RESOLUTION, "format": "RGB888"},
+            main={"size": config.CAMERA_RESOLUTION, "format": "BGR888"},
         )
         self._picam2.configure(cam_config)
         self._picam2.start()
+        controls: dict[str, bool] = {}
+        if config.CAMERA_ENABLE_AWB:
+            controls["AwbEnable"] = True
+        if config.CAMERA_ENABLE_AE:
+            controls["AeEnable"] = True
+        if controls:
+            try:
+                self._picam2.set_controls(controls)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Failed to apply camera controls %s: %s", controls, exc)
         logger.info(
-            "Pi camera started at %s, JPEG quality %d",
+            "Pi camera started at %s, JPEG quality %d, color_order=%s",
             config.CAMERA_RESOLUTION,
             config.CAMERA_JPEG_QUALITY,
+            config.CAMERA_COLOR_ORDER,
         )
 
     def stop(self) -> None:
@@ -84,6 +95,9 @@ class _PiCamera:
     def get_frame(self) -> bytes:
         assert self._picam2 is not None, "Pi camera not started"
         array = self._picam2.capture_array("main")
+        # Picamera2 BGR888 frames are converted to RGB for Pillow/JPEG encoding.
+        if config.CAMERA_COLOR_ORDER == "rgb":
+            array = array[:, :, ::-1]
         img = Image.fromarray(array)
         buf = io.BytesIO()
         img.save(buf, format="JPEG", quality=config.CAMERA_JPEG_QUALITY)

@@ -36,6 +36,31 @@ html, body {
   touch-action: manipulation;
 }
 
+/* expand full app when fullscreen is active */
+html.is-fullscreen,
+body.is-fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+html.is-fullscreen body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+html.is-fullscreen .top-bar {
+  width: 100vw;
+  max-width: none;
+}
+
+html.is-fullscreen .main-grid {
+  width: 100vw;
+  max-width: none;
+  height: calc(100vh - 32px);
+}
+
 /* top bar */
 .top-bar {
   display: flex;
@@ -75,7 +100,8 @@ html, body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--danger);
+  background: var(--success);
+  box-shadow: 0 0 4px rgba(102, 187, 106, 0.6);
   transition: background 0.3s;
 }
 
@@ -649,35 +675,6 @@ html, body {
 .confidence-bar-fill.severity-2 { background: #f59e0b; }
 .confidence-bar-fill.severity-3 { background: #ef4444; }
 
-/* patient log list */
-.log-page .back-link { margin-bottom: 8px; display: inline-block; }
-.log-list { flex: 1; overflow-y: auto; min-height: 0; }
-.log-list-item {
-  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
-  border-bottom: 1px solid var(--border); cursor: pointer;
-  transition: background 0.15s;
-}
-.log-list-item:hover, .log-list-item:active { background: var(--surface-2); }
-.log-list-item .log-time { flex-shrink: 0; font-size: 11px; color: var(--text-dim); }
-.log-list-item .log-patient { flex: 1; font-weight: 500; min-width: 0; }
-.log-list-item .log-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.log-list-item .log-confidence { font-size: 11px; color: var(--text-dim); }
-.log-list-empty { padding: 24px; text-align: center; color: var(--text-dim); font-size: 13px; }
-
-/* entry detail */
-.detail-page .back-link { margin-bottom: 8px; display: inline-block; }
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px; height: calc(480px - 32px - 16px); overflow: hidden; }
-.detail-image-panel { display: flex; flex-direction: column; overflow: hidden; }
-.detail-image-panel img { width: 100%; height: auto; max-height: 220px; object-fit: contain; background: #000; }
-.detail-meta-panel { overflow-y: auto; }
-.detail-meta-panel table { width: 100%; font-size: 12px; border-collapse: collapse; }
-.detail-meta-panel th, .detail-meta-panel td { padding: 4px 8px; text-align: left; border-bottom: 1px solid var(--border); }
-.detail-meta-panel th { color: var(--text-dim); font-weight: 500; }
-.detail-reasoning { margin-top: 8px; padding: 8px; background: var(--surface-2); border-radius: var(--radius-sm); font-size: 12px; }
-.detail-chat-section, .detail-guidance-section { margin-top: 12px; }
-.detail-chat-section h4, .detail-guidance-section h4 { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
-.detail-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-
 .triage-grid {
   display: grid;
   grid-template-columns: 60% 1fr;
@@ -784,6 +781,30 @@ html, body {
   gap: 8px;
   pointer-events: none;
 }
+
+.fullscreen-btn {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  z-index: 3100;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(26, 29, 39, 0.9);
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.fullscreen-btn:active {
+  transform: scale(0.96);
+}
 .toast {
   padding: 8px 12px;
   background: var(--surface-2);
@@ -846,5 +867,29 @@ html, body {
 
   .keyboard-overlay.hidden {
     transform: translateX(-50%) translateY(100%);
+  }
+
+  html.is-fullscreen,
+  html.is-fullscreen body {
+    align-items: stretch;
+    justify-content: flex-start;
+    background: var(--bg);
+  }
+
+  html.is-fullscreen .top-bar,
+  html.is-fullscreen .main-grid {
+    width: 100vw;
+    max-width: none;
+  }
+
+  html.is-fullscreen .main-grid {
+    height: calc(100vh - 32px);
+  }
+
+  html.is-fullscreen .keyboard-overlay,
+  html.is-fullscreen .keyboard-overlay.hidden {
+    max-width: none;
+    left: 0;
+    transform: translateY(100%);
   }
 }

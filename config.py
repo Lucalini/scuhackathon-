@@ -84,9 +84,15 @@ GPIO_BUTTON_PIN = int(os.getenv("GPIO_BUTTON_PIN", "17"))
 DS18B20_BASE_DIR = "/sys/bus/w1/devices/"
 
 # Camera
-CAMERA_RESOLUTION = (640, 480)
-CAMERA_JPEG_QUALITY = 85
-CAMERA_STREAM_FPS = int(os.getenv("CAMERA_STREAM_FPS", "24"))
+CAMERA_RESOLUTION = (
+    int(os.getenv("CAMERA_WIDTH", "1280")),
+    int(os.getenv("CAMERA_HEIGHT", "720")),
+)
+CAMERA_JPEG_QUALITY = int(os.getenv("CAMERA_JPEG_QUALITY", "92"))
+CAMERA_STREAM_FPS = int(os.getenv("CAMERA_STREAM_FPS", "20"))
+CAMERA_ENABLE_AWB = os.getenv("CAMERA_ENABLE_AWB", "1") not in ("0", "false", "False")
+CAMERA_ENABLE_AE = os.getenv("CAMERA_ENABLE_AE", "1") not in ("0", "false", "False")
+CAMERA_COLOR_ORDER = os.getenv("CAMERA_COLOR_ORDER", "rgb").strip().lower()
 MOCK_IMAGE_PATH = BASE_DIR / "static" / "mock" / "mockBruise.jpeg"
 
 # Remote server (stretch goal — sync + doctor dashboard)

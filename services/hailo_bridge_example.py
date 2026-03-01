@@ -14,9 +14,9 @@ HTTP mode env vars:
     export HAILO_ASSESS_URL=http://127.0.0.1:9001/assess
     export HAILO_CHAT_URL=http://127.0.0.1:9001/chat
 
-Command mode env vars:
-    export HAILO_ASSESS_COMMAND="python /path/to/bridge_assess.py"
-    export HAILO_CHAT_COMMAND="python /path/to/bridge_chat.py"
+Command mode env vars (recommended for this project):
+    export HAILO_ASSESS_COMMAND="/home/user/hailo-apps/venv_hailo_apps/bin/python /home/user/scuhackathon-/services/hailo_direct_assess.py"
+    export HAILO_CHAT_COMMAND="/home/user/hailo-apps/venv_hailo_apps/bin/python /home/user/scuhackathon-/services/hailo_direct_chat.py"
 
 Command mode contract:
     - stdin: JSON payload (includes image_base64 and temp image_path)

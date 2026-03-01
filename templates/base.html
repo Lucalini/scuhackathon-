@@ -24,7 +24,6 @@
     </div>
     <nav>
       <a href="/">Triage</a>
-      <a href="/log">Log</a>
     </nav>
     <span class="clock" id="clock"></span>
   </header>
@@ -35,6 +34,14 @@
 
   <!-- toast container -->
   <div id="toast-container"></div>
+  <button
+    type="button"
+    id="btn-fullscreen"
+    class="fullscreen-btn"
+    title="Toggle fullscreen"
+    aria-label="Toggle fullscreen"
+  >⛶</button>
+  <script src="/static/js/ui-shell.js"></script>
 
   {% block scripts %}
   <script src="/static/js/app.js"></script>
