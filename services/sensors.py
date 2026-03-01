@@ -1,14 +1,3 @@
-"""
-Sensor service — DS18B20 temperature + push-button GPIO.
-
-Provides:
-    - read_temperature()   → float | None (Celsius)
-    - ButtonListener class → gpiozero callback on press
-
-When MOCK_MODE is True, returns random temp values (36.0–38.5) and
-exposes a simulated button press via API.
-"""
-
 from __future__ import annotations
 
 import glob
