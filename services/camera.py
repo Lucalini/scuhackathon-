@@ -138,11 +138,15 @@ async def mjpeg_stream() -> AsyncGenerator[bytes, None]:
         await asyncio.sleep(interval)
 
 
+# one file in mock mode so we don't pile up identical test images
+MOCK_CAPTURE_FILENAME = "capture_mock.jpg"
+
+
 async def capture_snapshot() -> tuple[str, str]:
     cam = get_camera()
     frame = await asyncio.to_thread(cam.get_frame)
 
-    filename = _generate_filename()
+    filename = MOCK_CAPTURE_FILENAME if config.MOCK_MODE else _generate_filename()
     filepath = config.CAPTURES_DIR / filename
     await asyncio.to_thread(filepath.write_bytes, frame)
 

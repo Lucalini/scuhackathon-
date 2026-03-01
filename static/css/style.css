@@ -235,10 +235,43 @@ html, body {
   opacity: 0.4;
 }
 
+.camera-stream-img,
 .camera-preview {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.camera-viewport .hidden {
+  display: none !important;
+}
+
+.chat-actions {
+  padding: 6px 8px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.chat-messages .chat-triage-results {
+  padding: 8px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.chat-messages .triage-result-severity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.chat-messages .triage-reasoning {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text);
+  margin: 0;
 }
 
 .camera-controls {

@@ -26,16 +26,26 @@
     const emptyEl = document.getElementById("log-list-empty");
     if (!listEl || !emptyEl) return;
 
+    // clear previous rows (keep empty message node)
+    Array.from(listEl.children).forEach(function (child) {
+      if (child.id !== "log-list-empty") child.remove();
+    });
+    emptyEl.classList.remove("hidden");
+    emptyEl.textContent = "Loading…";
+
     try {
-      const res = await fetch("/api/entries");
-      const entries = res.ok ? await res.json() : [];
-      if (!Array.isArray(entries)) {
-        emptyEl.textContent = "No entries yet. Capture from the Triage screen.";
-        emptyEl.classList.remove("hidden");
+      const res = await fetch("/api/entries?t=" + Date.now());
+      const body = res.ok ? await res.json() : null;
+      var entries = Array.isArray(body) ? body : (body && Array.isArray(body.entries) ? body.entries : (body && body.data ? body.data : []));
+      if (!Array.isArray(entries)) entries = [];
+      console.log("[Log] GET /api/entries status=" + res.status + " entriesCount=" + entries.length);
+
+      if (!res.ok) {
+        emptyEl.textContent = "Could not load entries. Tap Refresh to try again.";
         return;
       }
       if (entries.length === 0) {
-        emptyEl.classList.remove("hidden");
+        emptyEl.textContent = "No entries yet. Capture from the Triage screen.";
         return;
       }
       emptyEl.classList.add("hidden");
@@ -68,8 +78,7 @@
       });
     } catch (e) {
       console.error("Log page fetch error:", e);
-      emptyEl.textContent = "No entries yet. Capture from the Triage screen.";
-      emptyEl.classList.remove("hidden");
+      emptyEl.textContent = "Could not load entries. Tap Refresh to try again.";
     }
   }
 
@@ -173,7 +182,11 @@
   }
 
   function init() {
-    if (document.getElementById("log-list")) initLogPage();
+    if (document.getElementById("log-list")) {
+      window.refreshLogList = function () { window.location.reload(); };
+      var refreshBtn = document.getElementById("log-refresh");
+      if (refreshBtn) refreshBtn.addEventListener("click", function () { window.location.reload(); });
+    }
     if (document.getElementById("detail-content")) initDetailPage();
   }
 
