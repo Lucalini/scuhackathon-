@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}VI Triage (Classic){% endblock %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- classic handheld layout -->
+<main class="main-grid">
+  <section class="panel camera-panel">
+    <div class="panel-header">
+      <span class="panel-title">Camera</span>
+      <div class="panel-actions">
+        <button class="btn btn-sm" id="btn-capture" title="Capture">
+          <span class="btn-icon">&#9673;</span> Capture
+        </button>
+      </div>
+    </div>
+    <div class="camera-viewport" id="camera-viewport">
+      <div class="camera-placeholder" id="camera-placeholder">
+        <span class="camera-icon">&#128247;</span>
+        <span>Tap Capture to take a photo</span>
+      </div>
+      <img id="camera-preview" class="camera-preview hidden" alt="Captured frame">
+    </div>
+    <div class="camera-controls">
+      <button class="btn btn-primary" id="btn-upload-vlm">
+        <span class="btn-icon">&#9881;</span> Analyze with VLM
+      </button>
+      <button class="btn btn-outline" id="btn-reset-capture">Reset</button>
+    </div>
+  </section>
+
+  <div class="right-column">
+    <section class="panel chat-panel">
+      <div class="panel-header">
+        <span class="panel-title">VLM Chat</span>
+        <span class="model-badge">Qwen2-VL-7B</span>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-welcome">
+          <p>AI-powered visual triage assistant ready.</p>
+          <p class="chat-hint">Capture an image or type a question below.</p>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" class="chat-input" id="chat-input" placeholder="Ask about the patient..." autocomplete="off" readonly>
+        <button class="btn btn-primary btn-send" id="btn-send">&#10148;</button>
+      </div>
+    </section>
+
+    <div class="bottom-row">
+      <section class="panel temp-panel">
+        <div class="panel-header">
+          <span class="panel-title">Temperature</span>
+          <div class="temp-current">
+            <span class="temp-value" id="temp-value">--</span>
+            <span class="temp-unit">°C</span>
+          </div>
+        </div>
+        <div class="temp-chart-wrap">
+          <canvas id="temp-chart"></canvas>
+        </div>
+      </section>
+      <section class="panel log-panel">
+        <div class="panel-header">
+          <span class="panel-title">Sensor Log</span>
+          <button class="btn btn-sm btn-danger" id="btn-reset-all" title="Reset All">Reset</button>
+        </div>
+        <div class="log-entries" id="log-entries">
+          <div class="log-empty">No events yet</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div class="keyboard-overlay hidden" id="keyboard-overlay">
+  <div class="keyboard" id="keyboard"></div>
+</div>
+<div class="loading-overlay hidden" id="loading-overlay">
+  <div class="spinner"></div>
+  <span class="loading-text" id="loading-text">Processing...</span>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/app-classic.js"></script>
+{% endblock %}

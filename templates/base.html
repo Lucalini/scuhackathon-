@@ -10,10 +10,22 @@
 <body>
   <!-- top bar -->
   <header class="top-bar">
-    <span class="logo">FieldTriage AI</span>
+    <div class="logo">
+      <span class="logo-icon">&#9764;</span>
+      <span class="logo-text">FieldTriage AI</span>
+    </div>
+    <div class="status-indicators">
+      <span class="status-dot" id="status-cam" title="Camera"></span>
+      <span class="status-label">CAM</span>
+      <span class="status-dot" id="status-vlm" title="VLM"></span>
+      <span class="status-label">VLM</span>
+      <span class="status-dot" id="status-temp" title="Temp"></span>
+      <span class="status-label">TEMP</span>
+    </div>
     <nav>
       <a href="/">Triage</a>
       <a href="/log">Log</a>
+      <a href="/classic">Classic</a>
     </nav>
     <span class="clock" id="clock"></span>
   </header>
@@ -25,7 +37,8 @@
   <!-- toast container -->
   <div id="toast-container"></div>
 
+  {% block scripts %}
   <script src="/static/js/app.js"></script>
-  {% block scripts %}{% endblock %}
+  {% endblock %}
 </body>
 </html>

@@ -93,6 +93,12 @@ async def page_detail(request: Request, entry_id: int):
     return templates.TemplateResponse("detail.html", {"request": request, "entry_id": entry_id})
 
 
+@app.get("/classic")
+async def page_classic(request: Request):
+    """Classic handheld UI: camera, chat, temp chart, sensor log."""
+    return templates.TemplateResponse("classic.html", {"request": request})
+
+
 @app.get("/api/camera/stream")
 async def camera_stream():
     return StreamingResponse(
