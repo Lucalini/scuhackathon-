@@ -1,7 +1,4 @@
-/**
- * FE-3: Patient log and entry detail — fetches from GET /api/entries and GET /api/entries/:id.
- * When backend adds these endpoints (same schema as design doc), this will work without changes.
- */
+// patient log and entry detail
 (function () {
   "use strict";
 
@@ -23,7 +20,7 @@
     return labels[Number(severity)] || "—";
   }
 
-  // ── Log page: list entries ──
+  // log page list entries
   async function initLogPage() {
     const listEl = document.getElementById("log-list");
     const emptyEl = document.getElementById("log-list-empty");
@@ -76,7 +73,7 @@
     }
   }
 
-  // ── Detail page: single entry ──
+  // detail page single entry
   async function initDetailPage() {
     const contentEl = document.getElementById("detail-content");
     const loadingEl = document.getElementById("detail-loading");

@@ -1,4 +1,4 @@
-/* vi triage, 800×480 */
+/* vi triage 800x480 */
 
 :root {
   --bg:        #0f1117;
@@ -597,7 +597,7 @@ html, body {
 .severity-2 { background: #f59e0b; color: #000; }
 .severity-3 { background: #ef4444; color: #fff; }
 
-/* confidence bar colored by severity */
+/* confidence bar by severity */
 .confidence-bar-wrap { margin-bottom: 8px; }
 .confidence-bar {
   height: 8px;

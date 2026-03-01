@@ -4,7 +4,7 @@
 
   const $ = (sel) => document.querySelector(sel);
 
-  // update clock in header
+  // update clock
   function updateClock() {
     const el = document.getElementById("clock");
     if (!el) return;
@@ -17,7 +17,7 @@
     });
   }
 
-  // show toast; type: success|warning|error|info (issue #15)
+  // show toast
   function showToast(message, type) {
     const container = document.getElementById("toast-container");
     if (!container) return;
@@ -28,7 +28,7 @@
     setTimeout(() => toast.remove(), 3000);
   }
 
-  // show loading overlay with optional text
+  // show loading overlay
   function showLoading(text) {
     const overlay = document.getElementById("loading-overlay");
     const textEl = document.getElementById("loading-text");
@@ -41,13 +41,13 @@
     if (overlay) overlay.classList.add("hidden");
   }
 
-  // severity 0-3 to label (issue #15: NON-ISSUE, MINOR, MODERATE, SEVERE)
+  // severity label
   function severityLabel(severity) {
     const labels = ["NON-ISSUE", "MINOR", "MODERATE", "SEVERE"];
     return labels[Number(severity)] ?? "—";
   }
 
-  // post /api/capture, show result or toast on 501 (issue #15: disable capture, pulse, Analyzing wound)
+  // post /api/capture
   async function handleCapture() {
     const btnCapture = document.getElementById("btn-capture");
     if (btnCapture) {
@@ -133,7 +133,7 @@
     }
   }
 
-  // get /api/temperature every 2s; --.- when unavailable (issue #16)
+  // poll temperature
   async function pollTemperature() {
     const el = document.getElementById("temp-value");
     if (!el) return;
@@ -152,7 +152,7 @@
     }
   }
 
-  // post /api/entries/:id/chat, max 3 turns
+  // post /api/entries/:id/chat
   async function sendFollowUp() {
     const entryId = window.__triageEntryId;
     if (entryId == null) return;
@@ -226,7 +226,7 @@
     }
   }
 
-  // reset triage ui state
+  // reset triage ui
   function handleNewPatient() {
     window.__triageEntryId = null;
     window.__triageFollowUpCount = 0;
@@ -246,12 +246,13 @@
     if (btnEscalate) { btnEscalate.textContent = "ESCALATE"; btnEscalate.disabled = false; }
   }
 
+  // toggle followup chat
   function toggleFollowUp() {
     const chat = document.getElementById("followup-chat");
     if (chat) chat.classList.toggle("hidden");
   }
 
-  // bind triage only on triage page, start temp poll
+  // init triage page
   function init() {
     updateClock();
     setInterval(updateClock, 1000);
