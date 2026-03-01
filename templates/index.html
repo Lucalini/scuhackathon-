@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
-  <!-- Top Bar -->
+  <!-- top bar -->
   <header class="top-bar">
     <div class="logo">
       <span class="logo-icon">&#9764;</span>
@@ -25,9 +25,9 @@
     <div class="clock" id="clock"></div>
   </header>
 
-  <!-- Main Layout -->
+  <!-- main layout -->
   <main class="main-grid">
-    <!-- Left Column: Camera + Controls -->
+    <!-- camera panel -->
     <section class="panel camera-panel">
       <div class="panel-header">
         <span class="panel-title">Camera</span>
@@ -54,9 +54,9 @@
       </div>
     </section>
 
-    <!-- Right Column: Chat + Readings -->
+    <!-- right column -->
     <div class="right-column">
-      <!-- VLM Chat -->
+      <!-- chat panel -->
       <section class="panel chat-panel">
         <div class="panel-header">
           <span class="panel-title">VLM Chat</span>
@@ -74,7 +74,7 @@
         </div>
       </section>
 
-      <!-- Bottom Row: Temp + Sensor Log -->
+      <!-- bottom row -->
       <div class="bottom-row">
         <!-- Temperature -->
         <section class="panel temp-panel">
@@ -90,7 +90,7 @@
           </div>
         </section>
 
-        <!-- Sensor Log -->
+        <!-- sensor log -->
         <section class="panel log-panel">
           <div class="panel-header">
             <span class="panel-title">Sensor Log</span>
@@ -109,7 +109,7 @@
     <div class="keyboard" id="keyboard"></div>
   </div>
 
-  <!-- Loading Overlay -->
+  <!-- loading overlay -->
   <div class="loading-overlay hidden" id="loading-overlay">
     <div class="spinner"></div>
     <span class="loading-text" id="loading-text">Processing...</span>
