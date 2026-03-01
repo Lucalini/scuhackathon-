@@ -1,0 +1,9 @@
+# local captures (generated at runtime)
+captures/
+# db (optional: remove if you want to commit a seed db)
+fieldtriage.db
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env

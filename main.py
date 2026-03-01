@@ -8,11 +8,12 @@ Run locally:
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -70,6 +71,37 @@ app.mount(
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 
+def _relative_time(iso_str: str | None) -> str:
+    if not iso_str:
+        return "—"
+    try:
+        d = datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
+        if d.tzinfo is None:
+            d = d.replace(tzinfo=timezone.utc)
+        now = datetime.now(timezone.utc)
+        delta = (now - d).total_seconds()
+        if delta < 60:
+            return "Just now"
+        if delta < 3600:
+            return f"{int(delta // 60)} min ago"
+        if delta < 86400:
+            return f"{int(delta // 3600)} h ago"
+        return d.strftime("%Y-%m-%d %H:%M")
+    except (ValueError, TypeError):
+        return "—"
+
+
+def _severity_label(severity: int | None) -> str:
+    if severity is None:
+        return "—"
+    labels = ["NON-ISSUE", "MINOR", "MODERATE", "SEVERE"]
+    return labels[severity] if 0 <= severity < len(labels) else "—"
+
+
+templates.env.filters["relative_time"] = _relative_time
+templates.env.filters["severity_label"] = _severity_label
+
+
 # Health check
 @app.get("/api/health")
 async def health_check():
@@ -101,9 +133,9 @@ async def page_detail(request: Request, entry_id: int):
 
 
 @app.get("/classic")
-async def page_classic(request: Request):
-    """Classic handheld UI: camera, chat, temp chart, sensor log."""
-    return templates.TemplateResponse("classic.html", {"request": request})
+async def page_classic():
+    """Redirect to triage (same page, classic layout)."""
+    return RedirectResponse(url="/", status_code=302)
 
 
 @app.get("/api/camera/stream")
@@ -170,7 +202,7 @@ async def debug_button_status():
 @app.get("/api/entries")
 async def api_list_entries():
     entries = await database.list_entries()
-    return entries
+    return JSONResponse(content=entries)
 
 
 @app.get("/api/entries/{entry_id}")

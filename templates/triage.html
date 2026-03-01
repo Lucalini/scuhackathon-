@@ -1,53 +1,84 @@
 {% extends "base.html" %}
-{% block title %}Triage FieldTriage AI{% endblock %}
+{% block title %}Triage — FieldTriage AI{% endblock %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
 
 {% block content %}
-<div class="triage-grid">
-  <section class="triage-camera-panel">
-    <img id="camera-stream" src="/api/camera/stream" alt="Live camera" class="triage-camera-stream" />
+<!-- triage: classic layout + capture/escalate/chat flow -->
+<main class="main-grid">
+  <section class="panel camera-panel">
+    <div class="panel-header">
+      <span class="panel-title">Camera</span>
+      <div class="panel-actions">
+        <button class="btn btn-primary btn-sm" id="btn-capture" title="Capture">Capture</button>
+      </div>
+    </div>
+    <div class="camera-viewport" id="camera-viewport">
+      <img id="camera-stream" src="/api/camera/stream" alt="Live camera" class="camera-stream-img" />
+      <div class="camera-placeholder hidden" id="camera-placeholder" aria-hidden="true">
+        <span class="camera-icon">&#128247;</span>
+        <span>Tap Capture to take a photo</span>
+      </div>
+      <img id="camera-preview" class="camera-preview hidden" alt="Captured frame" />
+    </div>
+    <div class="camera-controls">
+      <button class="btn btn-outline" id="btn-reset-capture">New patient</button>
+    </div>
   </section>
 
-  <section class="triage-controls-panel">
-    <div class="triage-temp">
-      <span class="temp-value" id="temp-value">--.-</span>
-      <span class="temp-unit">°C</span>
-    </div>
-
-    <button type="button" class="btn btn-primary btn-capture" id="btn-capture">CAPTURE</button>
-
-    <div id="triage-results" class="triage-results hidden">
-      <div class="triage-result-severity">
-        <span id="result-severity-badge" class="severity-badge severity-badge--large severity-1">—</span>
-        <span id="result-confidence" class="result-confidence"></span>
+  <div class="right-column">
+    <section class="panel chat-panel">
+      <div class="panel-header">
+        <span class="panel-title">VLM Chat</span>
+        <span class="model-badge" id="model-badge">Qwen2-VL</span>
       </div>
-      <div class="confidence-bar-wrap">
-        <div class="confidence-bar" id="confidence-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-          <div class="confidence-bar-fill" id="confidence-bar-fill"></div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-welcome">
+          <p>AI-powered visual triage assistant ready.</p>
+          <p class="chat-hint">Tap Capture to take a photo and get severity assessment.</p>
         </div>
       </div>
-      <p id="result-reasoning" class="triage-reasoning"></p>
-    </div>
-
-    <div id="followup-section" class="triage-followup hidden">
-      <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-followup">ASK FOLLOW-UP</button>
-      <div id="followup-chat" class="followup-chat hidden">
-        <div id="followup-messages"></div>
-        <div class="followup-input-row">
-          <input type="text" id="followup-input" class="followup-input" placeholder="Ask about this wound..." maxlength="200" />
-          <button type="button" class="btn btn-primary btn-sm" id="btn-followup-send">Send</button>
-        </div>
+      <div class="chat-input-row">
+        <input type="text" class="chat-input" id="chat-input" placeholder="Ask about the patient..." autocomplete="off" />
+        <button class="btn btn-primary btn-send" id="btn-send">&#10148;</button>
       </div>
-    </div>
+      <div class="chat-actions">
+        <button class="btn btn-danger" id="btn-escalate" disabled>Escalate</button>
+      </div>
+    </section>
 
-    <div class="triage-actions">
-      <button type="button" class="btn btn-danger" id="btn-escalate">ESCALATE</button>
-      <button type="button" class="btn btn-outline" id="btn-new-patient">NEW PATIENT</button>
+    <div class="bottom-row">
+      <section class="panel temp-panel">
+        <div class="panel-header">
+          <span class="panel-title">Temperature</span>
+          <div class="temp-current">
+            <span class="temp-value" id="temp-value">--</span>
+            <span class="temp-unit">°C</span>
+          </div>
+        </div>
+        <div class="temp-chart-wrap">
+          <canvas id="temp-chart"></canvas>
+        </div>
+      </section>
+      <section class="panel log-panel">
+        <div class="panel-header">
+          <span class="panel-title">Sensor log</span>
+        </div>
+        <div class="log-entries" id="log-entries">
+          <div class="log-empty">No events yet</div>
+        </div>
+      </section>
     </div>
-  </section>
-</div>
+  </div>
+</main>
 
-<div id="loading-overlay" class="loading-overlay hidden">
-  <div class="spinner" aria-hidden="true"></div>
-  <span id="loading-text" class="loading-text">Processing...</span>
+<div class="loading-overlay hidden" id="loading-overlay">
+  <div class="spinner"></div>
+  <span class="loading-text" id="loading-text">Processing...</span>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/app-triage.js"></script>
 {% endblock %}
