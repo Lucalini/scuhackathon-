@@ -17,14 +17,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 import config
+from database import init_db
 
 # Lifespan — startup / shutdown hooks
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     config.CAPTURES_DIR.mkdir(exist_ok=True)
-    # Future: initialise DB, start sensor listeners, etc.
+    await init_db()
     yield
-    # Future: cleanup resources
 
 
 # App factory
