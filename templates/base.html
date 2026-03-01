@@ -14,18 +14,21 @@
       <span class="logo-icon">&#9764;</span>
       <span class="logo-text">FieldTriage AI</span>
     </div>
-    <div class="status-indicators">
-      <span class="status-dot" id="status-cam" title="Camera"></span>
-      <span class="status-label">CAM</span>
-      <span class="status-dot" id="status-vlm" title="VLM"></span>
-      <span class="status-label">VLM</span>
-      <span class="status-dot" id="status-temp" title="Temp"></span>
-      <span class="status-label">TEMP</span>
-    </div>
-    <nav>
-      <a href="/">Triage</a>
+    <nav class="top-nav">
+      <a href="/" class="nav-link {% if request.url.path == '/' %}nav-link--active{% endif %}">Triage</a>
+      <a href="/log" class="nav-link {% if request.url.path.startswith('/log') %}nav-link--active{% endif %}">Log</a>
     </nav>
-    <span class="clock" id="clock"></span>
+    <div class="top-bar-right">
+      <div class="status-indicators">
+        <span class="status-dot" id="status-cam" title="Camera"></span>
+        <span class="status-label">CAM</span>
+        <span class="status-dot" id="status-vlm" title="VLM"></span>
+        <span class="status-label">VLM</span>
+        <span class="status-dot" id="status-temp" title="Temp"></span>
+        <span class="status-label">TEMP</span>
+      </div>
+      <span class="clock" id="clock"></span>
+    </div>
   </header>
 
   <main>
