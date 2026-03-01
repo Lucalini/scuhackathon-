@@ -20,10 +20,14 @@ MOCK_MODE: bool = os.getenv("MOCK_MODE", "1") not in ("0", "false", "False")
 HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", "8000"))
 
-# Hailo-Ollama (on-device VLM)
-HAILO_OLLAMA_URL = os.getenv("HAILO_OLLAMA_URL", "http://localhost:11434")
+# On-device VLM
 VLM_MODEL = os.getenv("VLM_MODEL", "qwen3-vl:2b")
 VLM_TIMEOUT_S = int(os.getenv("VLM_TIMEOUT_S", "60"))
+
+# Direct Hailo Python bridge
+HAILO_MODULE = os.getenv("HAILO_MODULE", "")
+HAILO_ASSESS_CALLABLE = os.getenv("HAILO_ASSESS_CALLABLE", "assess_wound")
+HAILO_CHAT_CALLABLE = os.getenv("HAILO_CHAT_CALLABLE", "chat_followup")
 
 TRIAGE_PROMPT = (
     "You are a field triage assistant. Assess this wound image.\n\n"

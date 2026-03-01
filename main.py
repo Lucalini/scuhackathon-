@@ -108,6 +108,7 @@ async def health_check():
     return {
         "status": "ok",
         "mock_mode": config.MOCK_MODE,
+        "inference_backend": "hailo",
         "vlm_model": config.VLM_MODEL,
     }
 
