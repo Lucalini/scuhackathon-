@@ -411,6 +411,11 @@
     updateClock();
     setInterval(updateClock, 1000);
 
+    // Log and detail pages use log-detail.js; only run triage init on main page
+    if (document.getElementById("log-list") || document.getElementById("detail-content")) {
+      return;
+    }
+
     buildKeyboard();
     initTempChart();
     bindEvents();

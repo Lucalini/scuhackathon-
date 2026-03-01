@@ -573,6 +573,51 @@ html, body {
   color: var(--text-dim);
 }
 
+/* ===== Severity badges (FE-3 / FE-4) — 0=Non-issue, 1=Minor, 2=Moderate, 3=Severe ===== */
+.severity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.severity-0 { background: #6b7280; color: #fff; }
+.severity-1 { background: #22c55e; color: #fff; }
+.severity-2 { background: #f59e0b; color: #000; }
+.severity-3 { background: #ef4444; color: #fff; }
+
+/* ===== Patient log list (FE-3) ===== */
+.log-page .back-link { margin-bottom: 8px; display: inline-block; }
+.log-list { flex: 1; overflow-y: auto; min-height: 0; }
+.log-list-item {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: background 0.15s;
+}
+.log-list-item:hover, .log-list-item:active { background: var(--surface-2); }
+.log-list-item .log-time { flex-shrink: 0; font-size: 11px; color: var(--text-dim); }
+.log-list-item .log-patient { flex: 1; font-weight: 500; min-width: 0; }
+.log-list-item .log-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.log-list-item .log-confidence { font-size: 11px; color: var(--text-dim); }
+.log-list-empty { padding: 24px; text-align: center; color: var(--text-dim); font-size: 13px; }
+
+/* ===== Entry detail (FE-3) ===== */
+.detail-page .back-link { margin-bottom: 8px; display: inline-block; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px; height: calc(480px - 32px - 16px); overflow: hidden; }
+.detail-image-panel { display: flex; flex-direction: column; overflow: hidden; }
+.detail-image-panel img { width: 100%; height: auto; max-height: 220px; object-fit: contain; background: #000; }
+.detail-meta-panel { overflow-y: auto; }
+.detail-meta-panel table { width: 100%; font-size: 12px; border-collapse: collapse; }
+.detail-meta-panel th, .detail-meta-panel td { padding: 4px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+.detail-meta-panel th { color: var(--text-dim); font-weight: 500; }
+.detail-reasoning { margin-top: 8px; padding: 8px; background: var(--surface-2); border-radius: var(--radius-sm); font-size: 12px; }
+.detail-chat-section, .detail-guidance-section { margin-top: 12px; }
+.detail-chat-section h4, .detail-guidance-section h4 { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
+.detail-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+
 /* ===== Utility ===== */
 .hidden {
   display: none !important;

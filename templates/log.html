@@ -2,6 +2,20 @@
 {% block title %}Patient Log — FieldTriage AI{% endblock %}
 
 {% block content %}
-<!-- FE-3: Patient log screen — scrollable entry list with severity badges -->
-<p>Patient log placeholder — see FE-3 task.</p>
+<div class="log-page" style="display: flex; flex-direction: column; height: calc(480px - 32px); overflow: hidden;">
+  <a href="/" class="btn btn-outline back-link">← Back to Triage</a>
+  <div class="panel" style="flex: 1; min-height: 0; display: flex; flex-direction: column;">
+    <div class="panel-header">
+      <span class="panel-title">Patient log</span>
+    </div>
+    <div id="log-list" class="log-list">
+      <div id="log-list-empty" class="log-list-empty hidden">No entries yet. Capture from the Triage screen.</div>
+      <!-- Entry rows injected by JS from GET /api/entries -->
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/log-detail.js"></script>
 {% endblock %}
