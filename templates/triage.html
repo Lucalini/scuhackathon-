@@ -2,6 +2,49 @@
 {% block title %}Triage — FieldTriage AI{% endblock %}
 
 {% block content %}
-<!-- FE-2: Main triage screen — camera feed, capture button, results, chat -->
-<p>Triage screen placeholder — see FE-2 task.</p>
+<!-- FE-2: Main triage — 60% camera stream, 40% controls + results (design doc) -->
+<div class="triage-grid">
+  <!-- Left 60%: live MJPEG -->
+  <section class="triage-camera-panel">
+    <img id="camera-stream" src="/api/camera/stream" alt="Live camera" class="triage-camera-stream" />
+  </section>
+
+  <!-- Right 40%: temp, capture, results, follow-up, escalate, new patient -->
+  <section class="triage-controls-panel">
+    <div class="triage-temp">
+      <span class="temp-value" id="temp-value">—</span>
+      <span class="temp-unit">°C</span>
+    </div>
+
+    <button type="button" class="btn btn-primary btn-capture" id="btn-capture">CAPTURE</button>
+
+    <div id="triage-results" class="triage-results hidden">
+      <div class="triage-result-severity">
+        <span id="result-severity-badge" class="severity-badge severity-1">—</span>
+        <span id="result-confidence" class="result-confidence"></span>
+      </div>
+      <p id="result-reasoning" class="triage-reasoning"></p>
+    </div>
+
+    <div id="followup-section" class="triage-followup hidden">
+      <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-followup">ASK FOLLOW-UP</button>
+      <div id="followup-chat" class="followup-chat hidden">
+        <div id="followup-messages"></div>
+        <div class="followup-input-row">
+          <input type="text" id="followup-input" class="followup-input" placeholder="Ask about this wound..." maxlength="200" />
+          <button type="button" class="btn btn-primary btn-sm" id="btn-followup-send">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="triage-actions">
+      <button type="button" class="btn btn-danger" id="btn-escalate">ESCALATE</button>
+      <button type="button" class="btn btn-outline" id="btn-new-patient">NEW PATIENT</button>
+    </div>
+  </section>
+</div>
+
+<div id="loading-overlay" class="loading-overlay hidden">
+  <span id="loading-text" class="loading-text">Processing...</span>
+</div>
 {% endblock %}
