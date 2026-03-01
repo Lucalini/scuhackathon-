@@ -138,7 +138,12 @@ def _call_chat_backend(payload: dict) -> dict | str:
     raise RuntimeError("Set HAILO_CHAT_URL or HAILO_CHAT_COMMAND for chat_followup")
 
 
-def assess_wound(image_base64: str, prompt: str, model: str) -> str:
+def assess_wound(
+    image_base64: str,
+    prompt: str,
+    model: str,
+    few_shot_examples: list[dict] | None = None,
+) -> str:
     image_path = _decode_to_temp_jpg(image_base64)
     try:
         payload = {
@@ -146,6 +151,7 @@ def assess_wound(image_base64: str, prompt: str, model: str) -> str:
             "prompt": prompt,
             "image_base64": image_base64,
             "image_path": str(image_path),
+            "few_shot_examples": few_shot_examples or [],
         }
         result = _call_assess_backend(payload)
         if isinstance(result, str):

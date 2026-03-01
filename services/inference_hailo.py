@@ -78,6 +78,7 @@ async def assess_raw(image_base64: str) -> str:
         image_base64=image_base64,
         prompt=config.TRIAGE_PROMPT,
         model=config.VLM_MODEL,
+        few_shot_examples=config.FEW_SHOT_EXAMPLES,
     )
     if not isinstance(result, str):
         raise InferenceError(

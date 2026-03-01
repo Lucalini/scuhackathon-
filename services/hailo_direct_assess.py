@@ -43,7 +43,29 @@ def _convert_resize_image(image_array: np.ndarray, target_size: tuple[int, int] 
     return canvas
 
 
-def _run_vlm(image_bgr: np.ndarray, system_prompt: str, user_prompt: str) -> str:
+def _load_few_shot_images(
+    examples: list[dict],
+) -> list[tuple[np.ndarray, str]]:
+    """Load few-shot example images and pair them with expected responses."""
+    loaded: list[tuple[np.ndarray, str]] = []
+    for ex in examples:
+        path = ex.get("image_path", "")
+        response = ex.get("response", "")
+        if not path or not response:
+            continue
+        img = cv2.imread(path)
+        if img is None:
+            continue
+        loaded.append((_convert_resize_image(img), response))
+    return loaded
+
+
+def _run_vlm(
+    image_bgr: np.ndarray,
+    system_prompt: str,
+    user_prompt: str,
+    few_shot_examples: list[dict] | None = None,
+) -> str:
     hef_path = resolve_hef_path(
         os.getenv("HAILO_HEF_PATH") or None,
         app_name=VLM_CHAT_APP,
@@ -56,23 +78,43 @@ def _run_vlm(image_bgr: np.ndarray, system_prompt: str, user_prompt: str) -> str
     temperature = float(os.getenv("HAILO_BACKEND_TEMPERATURE", "0.1"))
     seed = int(os.getenv("HAILO_BACKEND_SEED", "42"))
 
+    fs_pairs = _load_few_shot_images(few_shot_examples or [])
+
     params = VDevice.create_params()
     params.group_id = SHARED_VDEVICE_GROUP_ID
     vdevice = VDevice(params)
     vlm = VLM(vdevice, str(hef_path))
     try:
-        image = _convert_resize_image(image_bgr)
-        prompt = [
+        frames: list[np.ndarray] = []
+        prompt: list[dict] = [
             {"role": "system", "content": [{"type": "text", "text": system_prompt}]},
-            {
-                "role": "user",
-                "content": [{"type": "image"}, {"type": "text", "text": user_prompt}],
-            },
         ]
+
+        for fs_image, fs_response in fs_pairs:
+            frames.append(fs_image)
+            prompt.append({
+                "role": "user",
+                "content": [
+                    {"type": "image"},
+                    {"type": "text", "text": "Assess this wound."},
+                ],
+            })
+            prompt.append({
+                "role": "assistant",
+                "content": [{"type": "text", "text": fs_response}],
+            })
+
+        query_image = _convert_resize_image(image_bgr)
+        frames.append(query_image)
+        prompt.append({
+            "role": "user",
+            "content": [{"type": "image"}, {"type": "text", "text": user_prompt}],
+        })
+
         response = ""
         with vlm.generate(
             prompt=prompt,
-            frames=[image],
+            frames=frames,
             temperature=temperature,
             seed=seed,
             max_generated_tokens=max_tokens,
@@ -163,7 +205,8 @@ def main() -> int:
                 "REASONING: <one concise sentence>"
             )
 
-        answer = _run_vlm(image, system_prompt, prompt)
+        few_shot_examples = payload.get("few_shot_examples", [])
+        answer = _run_vlm(image, system_prompt, prompt, few_shot_examples)
         triage_text = _normalize_triage(answer)
         sys.stdout.write(json.dumps({"response": triage_text}))
         return 0

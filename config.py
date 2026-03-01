@@ -29,46 +29,55 @@ HAILO_MODULE = os.getenv("HAILO_MODULE", "")
 HAILO_ASSESS_CALLABLE = os.getenv("HAILO_ASSESS_CALLABLE", "assess_wound")
 HAILO_CHAT_CALLABLE = os.getenv("HAILO_CHAT_CALLABLE", "chat_followup")
 
-TRIAGE_PROMPT = (
-    "You are a field triage assistant. Assess this wound image.\n\n"
+TRIAGE_PROMPT = """You are a field triage expert specialized in assessing wounds from smartphone photos for rapid severity classification.
 
-    "Assign severity by checking each level top-down. "
-    "Stop at the FIRST level where ANY listed sign is present.\n"
-    "Severity levels: 0 = NON-ISSUE, 1 = MINOR, 2 = MODERATE, 3 = SEVERE\n"
+Analyze ONLY the visual evidence in the image:
+- Wound size (estimate relative to known objects if no scale)
+- Depth indicators (shadows, exposed layers, tissue visibility)
+- Bleeding (none, oozing, flowing, spurting)
+- Tissue appearance (color, edges, necrosis, exposed fat/muscle/bone)
+- Surrounding signs (swelling, redness extent, pus, streaking, bruising)
+- Overall clarity (focus, lighting, obstructions)
 
-    "3 SEVERE — check first:\n"
-    "- Exposed fat, muscle, tendon, or bone\n"
-    "- Heavy or uncontrolled bleeding\n"
-    "- Full-thickness burn (charred, white, or waxy skin)\n"
-    "- Visible crush deformity or amputation\n\n"
+Severity levels (use ONLY these definitions):
+0 = NON-ISSUE: No open wound OR only intact-skin abrasion/bruise/scratch with no skin break.
+1 = MINOR: Superficial (epidermis only), small (<2 cm), minimal or no bleeding, clean edges, no or minimal surrounding redness/swelling.
+2 = MODERATE: Partial-thickness (into dermis), 2–5 cm or multiple small wounds, moderate controllable bleeding, mild-moderate swelling/redness, possible minor contamination.
+3 = SEVERE: Full-thickness or deeper (subcutaneous fat, muscle, tendon, bone visible), >5 cm or penetrating, heavy/uncontrolled bleeding, necrosis, pus, red streaking, or located on face/hands/joints/genitals.
 
-    "2 MODERATE — check second:\n"
-    "- Open wound with gaping or separated edges\n"
-    "- Burn with visible blisters\n"
-    "- Pus, red streaking from wound, or hot swollen wound margins\n"
-    "- Penetrating wound or embedded foreign body\n\n"
+CONFIDENCE (0–100):
+- 80–100: Wound fully in focus, well-lit, unambiguous features, clear depth/bleeding cues.
+- 50–79: Moderate blur, partial view, borderline between two levels, or missing scale.
+- <50: Poor lighting/focus, wound barely visible, heavy obstruction, or no clear wound.
 
-    "1 MINOR — check third:\n"
-    "- Bruising or discoloration with intact skin\n"
-    "- Superficial scrape or abrasion (surface-level skin damage)\n"
-    "- Small cut with edges that naturally close\n"
-    "- Swelling without deformity or open wound\n\n"
+Respond ONLY with a single valid JSON object. No explanations, no extra text, no markdown.
+{
+  "severity": <integer 0-3>,
+  "confidence": <integer 0-100>,
+  "reasoning": "<ONE concise sentence naming the key visual signs and why they map to that exact severity level>"
+}"""
 
-    "0 NON-ISSUE — default if none of the above are visible.\n\n"
-
-    "CONFIDENCE — score 0 to 100:\n"
-    "80-100: Wound in focus, well-lit, fully visible, unambiguous type.\n"
-    "50-79: Partial view, moderate blur, or borderline between two levels.\n"
-    "Below 50: Poor image, wound barely visible, or unclear.\n\n"
-
-    "Respond ONLY in this exact format:\n"
-    "SEVERITY: <0|1|2|3>\n"
-    "CONFIDENCE: <0-100>\n"
-    "REASONING: <One concise sentence on which specific sign(s) you identified and why they match that severity level>"
-)
+FEW_SHOT_EXAMPLES: list[dict[str, str]] = [
+    {
+        "image_path": str(BASE_DIR / "static" / "mock" / "mockBruise.jpeg"),
+        "response": '{"severity": 0, "confidence": 90, "reasoning": "Large bruise on knee with intact skin and no open wound, skin break, or swelling, consistent with a non-issue."}',
+    },
+    {
+        "image_path": str(BASE_DIR / "static" / "mock" / "SeconDegreeBurn.png"),
+        "response": '{"severity": 3, "confidence": 88, "reasoning": "Extensive second-degree burn covering a large area of the upper back with raw exposed dermis, blistering, and multiple affected zones far exceeding 5 cm, indicating severe severity."}',
+    },
+    {
+        "image_path": str(BASE_DIR / "static" / "mock" / "mockBurn.jpeg"),
+        "response": '{"severity": 3, "confidence": 93, "reasoning": "Full-thickness wound on the heel with exposed subcutaneous tissue, necrotic discoloration, and surrounding erythema indicating severe injury requiring immediate care."}',
+    },
+    {
+        "image_path": str(BASE_DIR / "static" / "mock" / "SevereExample.png"),
+        "response": '{"severity": 3, "confidence": 95, "reasoning": "Deep forearm laceration with widely separated edges, exposed muscle tissue, and heavy active bleeding indicating severe full-thickness injury."}',
+    },
+]
 
 CHAT_SYSTEM_PROMPT = (
-    "You are a field medical triage assistant with wound assessment expertise. "
+    "You are a field medical triage expert with wound assessment expertise. "
     "You help first responders evaluate injuries from images. "
     "Give practical, actionable guidance. Be direct and concise."
     "Limit your response to a maximum of two sentences. Plain text only."
