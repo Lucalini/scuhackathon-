@@ -260,6 +260,9 @@
     if (document.getElementById("log-list") || document.getElementById("log-catalog") || document.getElementById("detail-content")) {
       return;
     }
+    if (document.getElementById("btn-reset-capture")) {
+      return;
+    }
 
     const btnCapture = document.getElementById("btn-capture");
     if (!btnCapture) return;
