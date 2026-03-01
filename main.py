@@ -19,6 +19,7 @@ from fastapi.templating import Jinja2Templates
 import config
 from database import init_db
 from services.camera import init_camera, shutdown_camera, mjpeg_stream, capture_snapshot
+from services.inference import init_inference, shutdown_inference
 from services.sensors import (
     init_sensors,
     shutdown_sensors,
@@ -34,7 +35,9 @@ async def lifespan(app: FastAPI):
     await init_db()
     init_camera()
     init_sensors()
+    init_inference()
     yield
+    await shutdown_inference()
     shutdown_sensors()
     shutdown_camera()
 
