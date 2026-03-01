@@ -12,19 +12,22 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 import config
 from database import init_db
+from services.camera import init_camera, shutdown_camera, mjpeg_stream, capture_snapshot
 
 # Lifespan — startup / shutdown hooks
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     config.CAPTURES_DIR.mkdir(exist_ok=True)
     await init_db()
+    init_camera()
     yield
+    shutdown_camera()
 
 
 # App factory
@@ -78,10 +81,15 @@ async def page_detail(request: Request, entry_id: int):
     return templates.TemplateResponse("detail.html", {"request": request, "entry_id": entry_id})
 
 
-# API endpoint placeholders
 @app.get("/api/camera/stream")
 async def camera_stream():
-    return JSONResponse({"detail": "Not implemented — see BE-3"}, status_code=501)
+    return StreamingResponse(
+        mjpeg_stream(),
+        media_type="multipart/x-mixed-replace; boundary=FRAME",
+    )
+
+
+# API endpoint placeholders
 
 
 @app.post("/api/capture")
