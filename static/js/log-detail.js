@@ -190,11 +190,88 @@
     }
   }
 
+  // sort catalog by severity (tags): cycle asc -> desc -> original order
+  function initLogCatalogSort() {
+    const catalog = document.getElementById("log-catalog");
+    const sortBtn = document.getElementById("log-sort-btn");
+    if (!catalog || !sortBtn) return;
+    const emptyEl = document.getElementById("log-catalog-empty");
+    const items = Array.from(catalog.querySelectorAll(".log-catalog-item"));
+    if (items.length === 0) return;
+
+    let order = 0; // 0 = original, 1 = severity asc, 2 = severity desc
+    const originalOrder = items.slice();
+    sortBtn.title = "Sort by severity";
+
+    sortBtn.addEventListener("click", function () {
+      order = (order + 1) % 3;
+      if (order === 0) {
+        originalOrder.forEach(function (el) { catalog.appendChild(el); });
+        sortBtn.title = "Sort by severity";
+      } else {
+        const sorted = items.slice().sort(function (a, b) {
+          const sa = parseInt(a.getAttribute("data-severity"), 10);
+          const sb = parseInt(b.getAttribute("data-severity"), 10);
+          return order === 1 ? sa - sb : sb - sa;
+        });
+        sorted.forEach(function (el) { catalog.appendChild(el); });
+        sortBtn.title = order === 1 ? "Sort: severity low→high (click again)" : "Sort: severity high→low (click again)";
+      }
+    });
+  }
+
+  // filter by category: severity, confidence, escalated only
+  function applyLogCatalogFilters() {
+    const catalog = document.getElementById("log-catalog");
+    const severityVal = (document.getElementById("log-filter-severity") || {}).value || "";
+    const confidenceVal = (document.getElementById("log-filter-confidence") || {}).value || "";
+    const escalatedOnly = (document.getElementById("log-filter-escalated") || {}).checked || false;
+    const emptyEl = document.getElementById("log-catalog-empty");
+    const noMatchEl = document.getElementById("log-catalog-no-match");
+    if (!catalog) return;
+    const items = catalog.querySelectorAll(".log-catalog-item");
+    let visibleCount = 0;
+    items.forEach(function (el) {
+      const sev = String(el.getAttribute("data-severity") || "");
+      const confStr = el.getAttribute("data-confidence") || "";
+      const conf = confStr === "" ? NaN : parseFloat(confStr, 10);
+      const escalated = el.getAttribute("data-escalated") === "true";
+      let show = true;
+      if (severityVal !== "" && sev !== severityVal) show = false;
+      if (show && confidenceVal !== "") {
+        if (confidenceVal === "high" && (isNaN(conf) || conf < 80)) show = false;
+        else if (confidenceVal === "medium" && (isNaN(conf) || conf < 50 || conf >= 80)) show = false;
+        else if (confidenceVal === "low" && (isNaN(conf) || conf >= 50)) show = false;
+      }
+      if (show && escalatedOnly && !escalated) show = false;
+      el.style.display = show ? "" : "none";
+      if (show) visibleCount += 1;
+    });
+    if (emptyEl) emptyEl.classList.toggle("hidden", items.length > 0);
+    if (noMatchEl) noMatchEl.classList.toggle("hidden", visibleCount > 0 || items.length === 0);
+  }
+
+  function initLogCatalogFilters() {
+    const catalog = document.getElementById("log-catalog");
+    const filtersBar = document.querySelector(".log-filters");
+    if (!catalog) return;
+    if (filtersBar) {
+      filtersBar.addEventListener("change", function (e) {
+        if (e.target.id === "log-filter-severity" || e.target.id === "log-filter-confidence" || e.target.id === "log-filter-escalated") {
+          applyLogCatalogFilters();
+        }
+      });
+    }
+    applyLogCatalogFilters();
+  }
+
   function init() {
     if (document.getElementById("log-list") || document.getElementById("log-catalog")) {
       window.refreshLogList = function () { window.location.reload(); };
       var refreshBtn = document.getElementById("log-refresh");
       if (refreshBtn) refreshBtn.addEventListener("click", function () { window.location.reload(); });
+      initLogCatalogSort();
+      initLogCatalogFilters();
     }
     if (document.getElementById("detail-content")) initDetailPage();
   }

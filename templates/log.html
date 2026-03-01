@@ -12,11 +12,37 @@
         <button type="button" class="btn btn-sm btn-outline" id="log-refresh" title="Refresh" onclick="window.location.reload()">Refresh</button>
       </div>
     </div>
+    <div class="log-filters">
+      <label class="log-filter-group">
+        <span class="log-filter-label">Severity</span>
+        <select id="log-filter-severity" class="log-filter-select" title="Filter by severity">
+          <option value="">All</option>
+          <option value="0">Non-issue</option>
+          <option value="1">Minor</option>
+          <option value="2">Moderate</option>
+          <option value="3">Severe</option>
+        </select>
+      </label>
+      <label class="log-filter-group">
+        <span class="log-filter-label">Confidence</span>
+        <select id="log-filter-confidence" class="log-filter-select" title="Filter by confidence level">
+          <option value="">All</option>
+          <option value="high">High (≥80%)</option>
+          <option value="medium">Medium (50–79%)</option>
+          <option value="low">Low (&lt;50%)</option>
+        </select>
+      </label>
+      <label class="log-filter-group log-filter-toggle">
+        <input type="checkbox" id="log-filter-escalated" class="log-filter-checkbox" title="Show escalated only">
+        <span class="log-filter-label">Escalated only</span>
+      </label>
+    </div>
     <div id="log-catalog" class="log-catalog {% if not entries %}log-catalog--empty{% endif %}" data-server-rendered="true">
       <div id="log-catalog-empty" class="log-catalog-empty {% if entries %}hidden{% endif %}">No entries yet. Capture from the Triage screen.</div>
+      <div id="log-catalog-no-match" class="log-catalog-empty hidden">No entries match the current filters.</div>
       {% for entry in entries %}
-      <a href="/log/{{ entry.id }}" class="log-catalog-item" title="Click to open expanded view">
-        <span class="log-catalog-patient">Patient #{{ entry.patient_id or entry.id }}</span>
+      <a href="/log/{{ entry.id }}" class="log-catalog-item" title="Click to open expanded view" data-severity="{{ entry.severity if entry.severity is not none else -1 }}" data-confidence="{{ entry.confidence if entry.confidence is not none else '' }}" data-escalated="{{ 'true' if entry.escalated else 'false' }}">
+        <span class="log-catalog-patient">Patient #{{ ((entry.patient_id or '') | replace('Patient #', '') | trim) or entry.id }}</span>
         <div class="log-catalog-thumb">
           {% if entry.image_filename %}
           <img src="/api/captures/{{ entry.image_filename }}" alt="" />
